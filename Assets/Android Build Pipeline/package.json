@@ -1,0 +1,9 @@
+{
+    "name": "com.luvikung.luviconsole",
+    "displayName": "LuviConsole",
+    "description": "LuviConsole is a console GUI of Unity that include custom command.",
+    "version": "2.4.3",
+    "unity": "2018.4",
+    "license": "MIT",
+    "dependencies": {}
+}

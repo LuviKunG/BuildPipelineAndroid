@@ -95,8 +95,8 @@ namespace LuviKunG.BuildPipeline.Android
         }
 
 
-        [MenuItem("Build/Settings/Android/Open Name Settings...", false, 3)]
-        public static void OpenSetting()
+        [MenuItem("Build/Settings/Android/Open Build Settings...", false, 3)]
+        public static void OpenBuildSetting()
         {
             AndroidBuildPipelineSettingsWindow.OpenWindow();
         }

@@ -1,8 +1,8 @@
 {
-    "name": "com.luvikung.luviconsole",
-    "displayName": "LuviConsole",
-    "description": "LuviConsole is a console GUI of Unity that include custom command.",
-    "version": "2.4.3",
+    "name": "com.luvikung.buildpipelineandroid",
+    "displayName": "Build Pipeline for Android",
+    "description": "Build Pipeline for Android is a build tools for Unity Editor that easier to use.",
+    "version": "1.0.2",
     "unity": "2018.4",
     "license": "MIT",
     "dependencies": {}

@@ -36,7 +36,13 @@ namespace LuviKunG.BuildPipeline.Android
 
         public void Load()
         {
+            // Define 'BUILD_PIPELINE_UNITY_DEFAULT' if you want to set a build location as same as default of Unity Editor
+            // But it's buggy because it will include default file name too.
+#if BUILD_PIPELINE_UNITY_DEFAULT
             buildPath = PlayerPrefs.GetString(PREFS_SETTINGS_BUILD_PATH, EditorUserBuildSettings.GetBuildLocation(BuildTarget.Android));
+#else
+            buildPath = PlayerPrefs.GetString(PREFS_SETTINGS_BUILD_PATH, string.Empty);
+#endif
             nameFormat = PlayerPrefs.GetString(PREFS_SETTINGS_NAME_FORMAT, "{package}_{date}");
             dateTimeFormat = PlayerPrefs.GetString(PREFS_SETTINGS_DATE_TIME_FORMAT, "yyyyMMddHHmmss");
             incrementBundle = PlayerPrefs.GetString(PREFS_SETTINGS_INCREMENT_BUNDLE, bool.FalseString) == bool.TrueString;

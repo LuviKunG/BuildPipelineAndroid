@@ -16,7 +16,7 @@ namespace LuviKunG.BuildPipeline.Android
 
         private static readonly string[] KEYSTORE_EXTENSIONS = new string[4] { "Keystore files", "jks,keystore", "All files", "*" };
 
-        private AndroidBuildPipelineSettings format;
+        private AndroidBuildPipelineSettings settings;
 
         public static AndroidBuildPipelineSettingsWindow OpenWindow()
         {
@@ -27,52 +27,53 @@ namespace LuviKunG.BuildPipeline.Android
 
         private void OnEnable()
         {
-            format = new AndroidBuildPipelineSettings();
+            settings = AndroidBuildPipelineSettings.Instance;
         }
 
         private void OnGUI()
         {
+            GUI.enabled = !UnityEditor.BuildPipeline.isBuildingPlayer;
             EditorGUILayout.LabelField("File name formatting", EditorStyles.boldLabel);
             using (var changeScope = new EditorGUI.ChangeCheckScope())
             {
-                format.nameFormat = EditorGUILayout.TextField(format.nameFormat);
+                settings.nameFormat = EditorGUILayout.TextField(settings.nameFormat);
                 if (changeScope.changed)
-                    format.Save();
+                    settings.Save();
             }
             EditorGUILayout.HelpBox(HELPBOX_NAME_FORMATTING_INFO, MessageType.Info, true);
-            EditorGUILayout.LabelField("Formatted name", format.GetFileName(), EditorStyles.helpBox);
+            EditorGUILayout.LabelField("Formatted name", settings.GetFileName(), EditorStyles.helpBox);
             using (var changeScope = new EditorGUI.ChangeCheckScope())
             {
-                format.dateTimeFormat = EditorGUILayout.TextField("Date time format", format.dateTimeFormat);
-                format.incrementBundle = EditorGUILayout.Toggle("Increase Bundle Version", format.incrementBundle);
-                format.useKeystore = EditorGUILayout.Toggle("Use Keystore", format.useKeystore);
+                settings.dateTimeFormat = EditorGUILayout.TextField("Date time format", settings.dateTimeFormat);
+                settings.incrementBundle = EditorGUILayout.Toggle("Increase Bundle Version", settings.incrementBundle);
+                settings.useKeystore = EditorGUILayout.Toggle("Use Keystore", settings.useKeystore);
                 if (changeScope.changed)
-                    format.Save();
+                    settings.Save();
             }
-            if (format.useKeystore)
+            if (settings.useKeystore)
             {
                 using (var verticalScope = new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                 {
                     EditorGUILayout.HelpBox(HELPBOX_USE_KEYSTORE_INFO, MessageType.Warning, true);
                     using (var horizontalScope = new EditorGUILayout.HorizontalScope())
                     {
-                        EditorGUILayout.LabelField("Keystore Name", format.keystoreName);
+                        EditorGUILayout.LabelField("Keystore Name", settings.keystoreName);
                         if (GUILayout.Button("Change...", GUILayout.Width(96.0f)))
                         {
-                            var path = EditorUtility.OpenFilePanelWithFilters("Choose Location of Build Game", string.IsNullOrEmpty(format.keystoreName) ? string.Empty : format.keystoreName, KEYSTORE_EXTENSIONS);
+                            var path = EditorUtility.OpenFilePanelWithFilters("Choose Location of Build Game", string.IsNullOrEmpty(settings.keystoreName) ? string.Empty : settings.keystoreName, KEYSTORE_EXTENSIONS);
                             if (string.IsNullOrEmpty(path))
                                 return;
-                            format.keystoreName = path;
-                            format.Save();
+                            settings.keystoreName = path;
+                            settings.Save();
                         }
                     }
                     using (var changeScope = new EditorGUI.ChangeCheckScope())
                     {
-                        format.keystorePass = EditorGUILayout.PasswordField("Keystore Password", format.keystorePass);
-                        format.keyaliasName = EditorGUILayout.TextField("Keyalias Name", format.keyaliasName);
-                        format.keyaliasPass = EditorGUILayout.PasswordField("Keyalias Password", format.keyaliasPass);
+                        settings.keystorePass = EditorGUILayout.PasswordField("Keystore Password", settings.keystorePass);
+                        settings.keyaliasName = EditorGUILayout.TextField("Keyalias Name", settings.keyaliasName);
+                        settings.keyaliasPass = EditorGUILayout.PasswordField("Keyalias Password", settings.keyaliasPass);
                         if (changeScope.changed)
-                            format.Save();
+                            settings.Save();
                     }
                     GUILayout.Space(16.0f);
                     using (var horizontalScope = new EditorGUILayout.HorizontalScope())
@@ -82,11 +83,11 @@ namespace LuviKunG.BuildPipeline.Android
                         GUI.color = Color.red;
                         if (GUILayout.Button("Clear Keystore Settings", GUILayout.MaxWidth(256.0f)))
                         {
-                            format.keystoreName = string.Empty;
-                            format.keystorePass = string.Empty;
-                            format.keyaliasName = string.Empty;
-                            format.keyaliasPass = string.Empty;
-                            format.Save();
+                            settings.keystoreName = string.Empty;
+                            settings.keystorePass = string.Empty;
+                            settings.keyaliasName = string.Empty;
+                            settings.keyaliasPass = string.Empty;
+                            settings.Save();
                         }
                         GUI.color = cacheColor;
                         GUILayout.FlexibleSpace();
@@ -94,6 +95,41 @@ namespace LuviKunG.BuildPipeline.Android
                     GUILayout.Space(16.0f);
                 }
             }
+            using (var verticalScope = new EditorGUILayout.VerticalScope())
+            {
+                using (var horizontalScope = new EditorGUILayout.HorizontalScope())
+                {
+                    EditorGUILayout.LabelField("Build location", settings.buildPath);
+                    if (GUILayout.Button("Change...", GUILayout.Width(96.0f)))
+                    {
+                        var path = OpenBuildSavePanel(settings.buildPath);
+                        if (!string.IsNullOrEmpty(path))
+                            settings.buildPath = path;
+                    }
+                }
+                using (var horizontalScope = new EditorGUILayout.HorizontalScope())
+                {
+                    GUILayout.FlexibleSpace();
+                    bool cacheEnable = GUI.enabled;
+                    GUI.enabled = !string.IsNullOrWhiteSpace(settings.buildPath);
+                    if (GUILayout.Button("Open Build Location", GUILayout.MaxWidth(256.0f)))
+                    {
+                        Application.OpenURL(settings.buildPath);
+                    }
+                    GUI.enabled = cacheEnable;
+                    GUILayout.FlexibleSpace();
+                }
+            }
+        }
+
+        private string OpenBuildSavePanel(string path)
+        {
+            string newPath = EditorUtility.SaveFolderPanel("Choose Location of Build Game", path, null);
+            if (string.IsNullOrEmpty(newPath))
+                return null;
+            settings.buildPath = newPath;
+            settings.Save();
+            return newPath;
         }
     }
 }

@@ -7,6 +7,17 @@ namespace LuviKunG.BuildPipeline.Android
 {
     public sealed class AndroidBuildPipelineSettings
     {
+        private static AndroidBuildPipelineSettings instance;
+        public static AndroidBuildPipelineSettings Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new AndroidBuildPipelineSettings();
+                return instance;
+            }
+        }
+
         private const string ALIAS = "unity.editor.luvikung.buildpipeline.android.";
         private static readonly string PREFS_SETTINGS_BUILD_PATH = ALIAS + "buildpath";
         private static readonly string PREFS_SETTINGS_NAME_FORMAT = ALIAS + "nameformat";
@@ -36,9 +47,9 @@ namespace LuviKunG.BuildPipeline.Android
 
         public void Load()
         {
-            // Define 'BUILD_PIPELINE_UNITY_DEFAULT' if you want to set a build location as same as default of Unity Editor
+            // Define 'BUILD_PIPELINE_ANDROID_UNITY_DEFAULT' if you want to set a build location as same as default of Unity Editor
             // But it's buggy because it will include default file name too.
-#if BUILD_PIPELINE_UNITY_DEFAULT
+#if BUILD_PIPELINE_ANDROID_UNITY_DEFAULT
             buildPath = PlayerPrefs.GetString(PREFS_SETTINGS_BUILD_PATH, EditorUserBuildSettings.GetBuildLocation(BuildTarget.Android));
 #else
             buildPath = PlayerPrefs.GetString(PREFS_SETTINGS_BUILD_PATH, string.Empty);
@@ -63,6 +74,7 @@ namespace LuviKunG.BuildPipeline.Android
 
         public void Save()
         {
+            PlayerPrefs.SetString(PREFS_SETTINGS_BUILD_PATH, buildPath);
             PlayerPrefs.SetString(PREFS_SETTINGS_NAME_FORMAT, nameFormat);
             PlayerPrefs.SetString(PREFS_SETTINGS_DATE_TIME_FORMAT, dateTimeFormat);
             PlayerPrefs.SetString(PREFS_SETTINGS_INCREMENT_BUNDLE, incrementBundle ? bool.TrueString : bool.FalseString);

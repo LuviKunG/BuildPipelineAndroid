@@ -42,7 +42,7 @@ namespace LuviKunG.BuildPipeline.Android
             }
             string fileName = settings.GetFileName();
             string buildPath = Path.Combine(path, fileName);
-            BuildReport report = UnityEditor.BuildPipeline.BuildPlayer(scenes.ToArray(), buildPath, BuildTarget.Android, BuildOptions.None);
+            BuildReport report = UnityEditor.BuildPipeline.BuildPlayer(scenes.ToArray(), buildPath, BuildTarget.Android, settings.buildOptions);
             BuildSummary summary = report.summary;
             if (summary.result == BuildResult.Succeeded)
             {

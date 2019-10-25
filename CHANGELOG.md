@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.0.4
+- Add new 'Build options'.
+
 ## 1.0.3
 - Fix 'set build location' isn't working properly.
 - Change the menu structure.

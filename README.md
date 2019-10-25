@@ -25,7 +25,7 @@ Then merge this json format below.
 ```json
 {
   "dependencies": {
-    "com.luvikung.buildpipelineandroid": "https://github.com/LuviKunG/AndroidBuildPipeline.git#1.0.3"
+    "com.luvikung.buildpipelineandroid": "https://github.com/LuviKunG/AndroidBuildPipeline.git#1.0.4"
   }
 }
 ```
@@ -40,7 +40,7 @@ In Unity 2019.3 or greater, Package Manager is include the new feature that able
 
 Just simply using this git URL and following with version like this example.
 
-**https://github.com/LuviKunG/AndroidBuildPipeline.git#1.0.3**
+**https://github.com/LuviKunG/AndroidBuildPipeline.git#1.0.4**
 
 Make sure that you're select the latest version.
 

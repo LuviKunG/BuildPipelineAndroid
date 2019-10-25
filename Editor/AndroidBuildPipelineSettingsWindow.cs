@@ -47,6 +47,7 @@ namespace LuviKunG.BuildPipeline.Android
                 settings.dateTimeFormat = EditorGUILayout.TextField("Date time format", settings.dateTimeFormat);
                 settings.incrementBundle = EditorGUILayout.Toggle("Increase Bundle Version", settings.incrementBundle);
                 settings.useKeystore = EditorGUILayout.Toggle("Use Keystore", settings.useKeystore);
+                settings.buildOptions = (BuildOptions)EditorGUILayout.EnumFlagsField("Build options", settings.buildOptions);
                 if (changeScope.changed)
                     settings.Save();
             }

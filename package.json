@@ -2,7 +2,7 @@
     "name": "com.luvikung.buildpipelineandroid",
     "displayName": "Build Pipeline for Android",
     "description": "Build Pipeline for Android is a build tools for Unity Editor that easier to use.",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "unity": "2018.4",
     "license": "MIT",
     "dependencies": {}

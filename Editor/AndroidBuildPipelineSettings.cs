@@ -23,6 +23,7 @@ namespace LuviKunG.BuildPipeline.Android
         private static readonly string PREFS_SETTINGS_NAME_FORMAT = ALIAS + "nameformat";
         private static readonly string PREFS_SETTINGS_DATE_TIME_FORMAT = ALIAS + "datetimeformat";
         private static readonly string PREFS_SETTINGS_INCREMENT_BUNDLE = ALIAS + "incrementbundle";
+        private static readonly string PREFS_SETTINGS_BUILD_OPTIONS = ALIAS + "buildOptions";
         private static readonly string PREFS_SETTINGS_USE_KEYSTORE = ALIAS + "usekeystore";
         private static readonly string PREFS_SETTINGS_KEYSTORE_NAME = ALIAS + "keystorename";
         private static readonly string PREFS_SETTINGS_KEYSTORE_PASS = ALIAS + "keystorepass";
@@ -33,6 +34,7 @@ namespace LuviKunG.BuildPipeline.Android
         public string nameFormat;
         public string dateTimeFormat;
         public bool incrementBundle;
+        public BuildOptions buildOptions;
         public bool useKeystore;
 
         public string keystoreName;
@@ -57,6 +59,8 @@ namespace LuviKunG.BuildPipeline.Android
             nameFormat = PlayerPrefs.GetString(PREFS_SETTINGS_NAME_FORMAT, "{package}_{date}");
             dateTimeFormat = PlayerPrefs.GetString(PREFS_SETTINGS_DATE_TIME_FORMAT, "yyyyMMddHHmmss");
             incrementBundle = PlayerPrefs.GetString(PREFS_SETTINGS_INCREMENT_BUNDLE, bool.FalseString) == bool.TrueString;
+            buildOptions = (BuildOptions)PlayerPrefs.GetInt(PREFS_SETTINGS_BUILD_OPTIONS, 0);
+
             useKeystore = PlayerPrefs.GetString(PREFS_SETTINGS_USE_KEYSTORE, bool.FalseString) == bool.TrueString;
 
             keystoreName = PlayerPrefs.GetString(PREFS_SETTINGS_KEYSTORE_NAME, PlayerSettings.Android.keystoreName);
@@ -78,6 +82,7 @@ namespace LuviKunG.BuildPipeline.Android
             PlayerPrefs.SetString(PREFS_SETTINGS_NAME_FORMAT, nameFormat);
             PlayerPrefs.SetString(PREFS_SETTINGS_DATE_TIME_FORMAT, dateTimeFormat);
             PlayerPrefs.SetString(PREFS_SETTINGS_INCREMENT_BUNDLE, incrementBundle ? bool.TrueString : bool.FalseString);
+            PlayerPrefs.SetInt(PREFS_SETTINGS_BUILD_OPTIONS, (int)buildOptions);
             PlayerPrefs.SetString(PREFS_SETTINGS_USE_KEYSTORE, useKeystore ? bool.TrueString : bool.FalseString);
 
             if (!string.IsNullOrEmpty(keystoreName))

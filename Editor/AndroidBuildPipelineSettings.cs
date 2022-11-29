@@ -19,16 +19,18 @@ namespace LuviKunG.BuildPipeline.Android
         }
 
         private const string ALIAS = "unity.editor.luvikung.buildpipeline.android.";
-        private static readonly string PREFS_SETTINGS_BUILD_PATH = ALIAS + "buildpath";
-        private static readonly string PREFS_SETTINGS_NAME_FORMAT = ALIAS + "nameformat";
-        private static readonly string PREFS_SETTINGS_DATE_TIME_FORMAT = ALIAS + "datetimeformat";
-        private static readonly string PREFS_SETTINGS_INCREMENT_BUNDLE = ALIAS + "incrementbundle";
-        private static readonly string PREFS_SETTINGS_BUILD_OPTIONS = ALIAS + "buildOptions";
-        private static readonly string PREFS_SETTINGS_USE_KEYSTORE = ALIAS + "usekeystore";
-        private static readonly string PREFS_SETTINGS_KEYSTORE_NAME = ALIAS + "keystorename";
-        private static readonly string PREFS_SETTINGS_KEYSTORE_PASS = ALIAS + "keystorepass";
-        private static readonly string PREFS_SETTINGS_KEYALIAS_NAME = ALIAS + "keyaliasname";
-        private static readonly string PREFS_SETTINGS_KEYALIAS_PASS = ALIAS + "keyaliaspass";
+        private const string PREFS_SETTINGS_BUILD_PATH = ALIAS + "buildpath";
+        private const string PREFS_SETTINGS_NAME_FORMAT = ALIAS + "nameformat";
+        private const string PREFS_SETTINGS_DATE_TIME_FORMAT = ALIAS + "datetimeformat";
+        private const string PREFS_SETTINGS_INCREMENT_BUNDLE = ALIAS + "incrementbundle";
+        private const string PREFS_SETTINGS_BUILD_OPTIONS = ALIAS + "buildOptions";
+        private const string PREFS_SETTINGS_USE_KEYSTORE = ALIAS + "usekeystore";
+        private const string PREFS_SETTINGS_IS_BUILD_APP_BUNDLE = ALIAS + "isBuildAppBundle";
+        private const string PREFS_SETTINGS_IS_SPLIT_APP_BINARY = ALIAS + "isSplitAppBinary";
+        private const string PREFS_SETTINGS_KEYSTORE_NAME = ALIAS + "keystorename";
+        private const string PREFS_SETTINGS_KEYSTORE_PASS = ALIAS + "keystorepass";
+        private const string PREFS_SETTINGS_KEYALIAS_NAME = ALIAS + "keyaliasname";
+        private const string PREFS_SETTINGS_KEYALIAS_PASS = ALIAS + "keyaliaspass";
 
         public string buildPath;
         public string nameFormat;
@@ -36,6 +38,8 @@ namespace LuviKunG.BuildPipeline.Android
         public bool incrementBundle;
         public BuildOptions buildOptions;
         public bool useKeystore;
+        public bool isBuildAppBundle;
+        public bool isSplitAppBinary;
 
         public string keystoreName;
         public string keystorePass;
@@ -60,13 +64,15 @@ namespace LuviKunG.BuildPipeline.Android
             dateTimeFormat = PlayerPrefs.GetString(PREFS_SETTINGS_DATE_TIME_FORMAT, "yyyyMMddHHmmss");
             incrementBundle = PlayerPrefs.GetString(PREFS_SETTINGS_INCREMENT_BUNDLE, bool.FalseString) == bool.TrueString;
             buildOptions = (BuildOptions)PlayerPrefs.GetInt(PREFS_SETTINGS_BUILD_OPTIONS, 0);
-
-            useKeystore = PlayerPrefs.GetString(PREFS_SETTINGS_USE_KEYSTORE, bool.FalseString) == bool.TrueString;
+            
+            useKeystore = PlayerPrefs.GetInt(PREFS_SETTINGS_USE_KEYSTORE, 0) != 0;
+            isBuildAppBundle = PlayerPrefs.GetInt(PREFS_SETTINGS_IS_BUILD_APP_BUNDLE, EditorUserBuildSettings.buildAppBundle ? 1 : 0) != 0;
+            isSplitAppBinary = PlayerPrefs.GetInt(PREFS_SETTINGS_IS_SPLIT_APP_BINARY, PlayerSettings.Android.useAPKExpansionFiles ? 1 : 0) != 0;
 
             keystoreName = PlayerPrefs.GetString(PREFS_SETTINGS_KEYSTORE_NAME, PlayerSettings.Android.keystoreName);
 
             keyaliasName = PlayerPrefs.GetString(PREFS_SETTINGS_KEYALIAS_NAME, string.Empty);
-
+            
             var keystorePassEncoded = PlayerPrefs.GetString(PREFS_SETTINGS_KEYSTORE_PASS, string.Empty);
             if (!string.IsNullOrEmpty(keystorePassEncoded))
                 keystorePass = Encoding.ASCII.GetString(Convert.FromBase64String(keystorePassEncoded));
@@ -83,7 +89,9 @@ namespace LuviKunG.BuildPipeline.Android
             PlayerPrefs.SetString(PREFS_SETTINGS_DATE_TIME_FORMAT, dateTimeFormat);
             PlayerPrefs.SetString(PREFS_SETTINGS_INCREMENT_BUNDLE, incrementBundle ? bool.TrueString : bool.FalseString);
             PlayerPrefs.SetInt(PREFS_SETTINGS_BUILD_OPTIONS, (int)buildOptions);
-            PlayerPrefs.SetString(PREFS_SETTINGS_USE_KEYSTORE, useKeystore ? bool.TrueString : bool.FalseString);
+            PlayerPrefs.SetInt(PREFS_SETTINGS_USE_KEYSTORE, useKeystore ? 1 : 0);
+            PlayerPrefs.SetInt(PREFS_SETTINGS_IS_BUILD_APP_BUNDLE, isBuildAppBundle ? 1 : 0);
+            PlayerPrefs.SetInt(PREFS_SETTINGS_IS_SPLIT_APP_BINARY, isSplitAppBinary ? 1 : 0);   
 
             if (!string.IsNullOrEmpty(keystoreName))
                 PlayerPrefs.SetString(PREFS_SETTINGS_KEYSTORE_NAME, keystoreName);
@@ -114,14 +122,13 @@ namespace LuviKunG.BuildPipeline.Android
 
         public string GetFileName()
         {
-            StringBuilder s = new StringBuilder();
-            s.Append(nameFormat);
+            StringBuilder s = new StringBuilder(nameFormat);
             s.Replace("{name}", Application.productName);
             s.Replace("{package}", PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.Android));
             s.Replace("{version}", Application.version);
             s.Replace("{bundle}", PlayerSettings.Android.bundleVersionCode.ToString());
             s.Replace("{date}", DateTime.Now.ToString(dateTimeFormat));
-            s.Append(".apk");
+            s.Append(isBuildAppBundle ? ".aab" : ".apk");
             return s.ToString();
         }
     }

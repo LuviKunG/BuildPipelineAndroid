@@ -10,11 +10,35 @@ namespace LuviKunG.BuildPipeline.Android
     {
         private static AndroidBuildPipelineSettings settings;
 
-        [MenuItem("Build/Android", false, 0)]
+        [MenuItem("Build/Settings/Android", false, 0)]
+        public static void OpenBuildSetting()
+        {
+            AndroidBuildPipelineSettingsWindow.OpenWindow();
+        }
+
+        [MenuItem("Build/Android", true, 10)]
+        public static bool ValidateBuildAndroid()
+        {
+            return !EditorApplication.isCompiling && !EditorApplication.isUpdating && !UnityEditor.BuildPipeline.isBuildingPlayer && !EditorApplication.isPlaying;
+        }
+
+        [MenuItem("Build/Android", false, 10)]
         public static void Build()
         {
-            if (UnityEditor.BuildPipeline.isBuildingPlayer)
+            string OpenBuildSavePanel(string path)
+            {
+                string newPath = EditorUtility.SaveFolderPanel("Choose Location of Build Game", path, null);
+                if (string.IsNullOrEmpty(newPath))
+                    return null;
+                settings.buildPath = newPath;
+                settings.Save();
+                return newPath;
+            }
+            if (!ValidateBuildAndroid())
+            {
+                EditorUtility.DisplayDialog("Build Pipeline Android", "Cannot build because the editor is busy.", "OK");
                 return;
+            }
             settings = AndroidBuildPipelineSettings.Instance;
             string path;
             if (string.IsNullOrEmpty(settings.buildPath))
@@ -53,60 +77,6 @@ namespace LuviKunG.BuildPipeline.Android
             {
                 Debug.LogError($"Build failed...");
             }
-        }
-
-#if BUILD_PIPELINE_ANDROID_OLD_MENU
-        [MenuItem("Build/Settings/Android/Set Build Directory...", false, 1)]
-        public static void SetDirectory()
-        {
-            if (UnityEditor.BuildPipeline.isBuildingPlayer)
-                return;
-            settings = AndroidBuildPipelineSettings.Instance;
-            string newPath = OpenBuildSavePanel(settings.buildPath);
-            if (!string.IsNullOrEmpty(newPath))
-                EditorUtility.DisplayDialog("Android Build Pipeline", $"Build directory has been set to: {newPath}", "Okay");
-        }
-
-        [MenuItem("Build/Settings/Android/Open Directory...", true, 2)]
-        public static bool OpenDirectoryValidate()
-        {
-            settings = AndroidBuildPipelineSettings.Instance;
-            string loadedBuildPath = settings.buildPath;
-            return !string.IsNullOrEmpty(loadedBuildPath);
-        }
-
-        [MenuItem("Build/Settings/Android/Open Directory...", false, 2)]
-        public static void OpenDirectory()
-        {
-            if (UnityEditor.BuildPipeline.isBuildingPlayer)
-                return;
-            settings = AndroidBuildPipelineSettings.Instance;
-            string loadedBuildPath = settings.buildPath;
-            if (string.IsNullOrEmpty(loadedBuildPath))
-                return;
-            Application.OpenURL(loadedBuildPath);
-        }
-
-        [MenuItem("Build/Settings/Android/Open Build Settings...", false, 3)]
-        public static void OpenBuildSetting()
-        {
-            AndroidBuildPipelineSettingsWindow.OpenWindow();
-        }
-#else
-        [MenuItem("Build/Settings/Android", false, 0)]
-        public static void OpenBuildSetting()
-        {
-            AndroidBuildPipelineSettingsWindow.OpenWindow();
-        }
-#endif
-        private static string OpenBuildSavePanel(string path)
-        {
-            string newPath = EditorUtility.SaveFolderPanel("Choose Location of Build Game", path, null);
-            if (string.IsNullOrEmpty(newPath))
-                return null;
-            settings.buildPath = newPath;
-            settings.Save();
-            return newPath;
         }
     }
 }

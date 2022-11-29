@@ -1,9 +1,31 @@
 {
-    "name": "com.luvikung.buildpipelineandroid",
-    "displayName": "Build Pipeline for Android",
-    "description": "Build Pipeline for Android is a build tools for Unity Editor that easier to use.",
-    "version": "1.0.4",
-    "unity": "2018.4",
-    "license": "MIT",
-    "dependencies": {}
+  "name": "com.luvikung.buildpipelineandroid",
+  "displayName": "Build Pipeline for Android",
+  "description": "Build Pipeline for Android is an automation build tools for Unity Editor for easier to build android.",
+  "version": "1.0.5",
+  "unity": "2021.3",
+  "author": "Thanut Panichyotai",
+  "contributors": [
+    {
+      "name": "LuviKunG",
+      "twitter": "@LuviKunG"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LuviKunG/BuildPipelineAndroid.git"
+  },
+  "bugs": {
+    "url": "https://github.com/LuviKunG/BuildPipelineAndroid/issues"
+  },
+  "keywords": [
+    "unity",
+    "csharp",
+    "luvi",
+    "build",
+    "pipeline",
+    "android"
+  ],
+  "license": "MIT",
+  "dependencies": {}
 }

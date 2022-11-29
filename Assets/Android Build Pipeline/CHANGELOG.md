@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.0.5
+- Require minimal version of Unity Editor 2021.3 LTS. Older of Unity Editor version are no longer support.
+- Change UI.
+- Add toggle of **'Build App Bundle'**.
+- Add toggle of **'Split Application Binary'**.
+- Add Scripting Define Symbols of `BUILD_PIPELINE_ANDROID_ENABLE_BUNDLE_VERSION_CONFIG` for enable bundle version field in settings.
+
 ## 1.0.4
 - Add new 'Build options'.
 

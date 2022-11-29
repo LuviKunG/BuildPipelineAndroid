@@ -25,14 +25,14 @@ Then merge this json format below.
 ```json
 {
   "dependencies": {
-    "com.luvikung.buildpipelineandroid": "https://github.com/LuviKunG/BuildPipelineAndroid.git#1.0.4"
+    "com.luvikung.buildpipelineandroid": "https://github.com/LuviKunG/BuildPipelineAndroid.git#1.0.5"
   }
 }
 ```
 
 If you want to install the older version, please take a look at release tag in this git, then change the path after **#** to the version tag that you want.
 
-### Unity 2019.3 Git URL
+### Unity Git URL
 
 In Unity 2019.3 or greater, Package Manager is include the new feature that able to install the package via Git.
 
@@ -40,14 +40,6 @@ In Unity 2019.3 or greater, Package Manager is include the new feature that able
 
 Just simply using this git URL and following with version like this example.
 
-**https://github.com/LuviKunG/BuildPipelineAndroid.git#1.0.4**
-
-Make sure that you're select the latest version.
-
-### Unity UPM Git Extension (For 2019.2 and older version)
-
-If you doesn't have this package before, please redirect to this git [https://github.com/mob-sakai/UpmGitExtension](https://github.com/mob-sakai/UpmGitExtension) then follow the instruction in README.md to install the **UPM Git Extension** to your Unity.
-
-If you already installed. Open the **Package Manager UI**, you will see the git icon around the bottom left connor, Open it then follow the instruction using this git URL to perform package install.
+**https://github.com/LuviKunG/BuildPipelineAndroid.git#1.0.5**
 
 Make sure that you're select the latest version.

@@ -3,6 +3,8 @@
 This is a build tools for Unity Editor that easier to use. Include custom format name and auto increment bundle every perform a build.
 Created by Thanut Panichyotai (@[LuviKunG]((https://github.com/LuviKunG)))
 
+![Preview](images/image01.png)
+
 ## How to use?
 
 New menu will be add to your Unity Editor named 'Build'. In the menu that will include two elements.
@@ -25,21 +27,9 @@ Then merge this json format below.
 ```json
 {
   "dependencies": {
-    "com.luvikung.buildpipelineandroid": "https://github.com/LuviKunG/BuildPipelineAndroid.git#1.0.5"
+    "com.luvikung.buildpipelineandroid": "https://github.com/LuviKunG/BuildPipelineAndroid.git#1.0.6"
   }
 }
 ```
 
-If you want to install the older version, please take a look at release tag in this git, then change the path after **#** to the version tag that you want.
-
-### Unity Git URL
-
-In Unity 2019.3 or greater, Package Manager is include the new feature that able to install the package via Git.
-
-![Install with Git URL](images/giturl.png)
-
-Just simply using this git URL and following with version like this example.
-
-**https://github.com/LuviKunG/BuildPipelineAndroid.git#1.0.5**
-
-Make sure that you're select the latest version.
+If you want to install the older version, please take a look at release tag in this git, then change the path after **#** to the version tag that you want. Or checkout [`CHANGELOG.md`](CHANGELOG.md) for more imformation.

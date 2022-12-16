@@ -38,8 +38,6 @@ namespace LuviKunG.BuildPipeline.Android
         public bool incrementBundle;
         public BuildOptions buildOptions;
         public bool useKeystore;
-        public bool isBuildAppBundle;
-        public bool isSplitAppBinary;
 
         public string keystoreName;
         public string keystorePass;
@@ -66,11 +64,8 @@ namespace LuviKunG.BuildPipeline.Android
             buildOptions = (BuildOptions)PlayerPrefs.GetInt(PREFS_SETTINGS_BUILD_OPTIONS, 0);
             
             useKeystore = PlayerPrefs.GetInt(PREFS_SETTINGS_USE_KEYSTORE, 0) != 0;
-            isBuildAppBundle = PlayerPrefs.GetInt(PREFS_SETTINGS_IS_BUILD_APP_BUNDLE, EditorUserBuildSettings.buildAppBundle ? 1 : 0) != 0;
-            isSplitAppBinary = PlayerPrefs.GetInt(PREFS_SETTINGS_IS_SPLIT_APP_BINARY, PlayerSettings.Android.useAPKExpansionFiles ? 1 : 0) != 0;
 
             keystoreName = PlayerPrefs.GetString(PREFS_SETTINGS_KEYSTORE_NAME, PlayerSettings.Android.keystoreName);
-
             keyaliasName = PlayerPrefs.GetString(PREFS_SETTINGS_KEYALIAS_NAME, string.Empty);
             
             var keystorePassEncoded = PlayerPrefs.GetString(PREFS_SETTINGS_KEYSTORE_PASS, string.Empty);
@@ -90,8 +85,6 @@ namespace LuviKunG.BuildPipeline.Android
             PlayerPrefs.SetString(PREFS_SETTINGS_INCREMENT_BUNDLE, incrementBundle ? bool.TrueString : bool.FalseString);
             PlayerPrefs.SetInt(PREFS_SETTINGS_BUILD_OPTIONS, (int)buildOptions);
             PlayerPrefs.SetInt(PREFS_SETTINGS_USE_KEYSTORE, useKeystore ? 1 : 0);
-            PlayerPrefs.SetInt(PREFS_SETTINGS_IS_BUILD_APP_BUNDLE, isBuildAppBundle ? 1 : 0);
-            PlayerPrefs.SetInt(PREFS_SETTINGS_IS_SPLIT_APP_BINARY, isSplitAppBinary ? 1 : 0);   
 
             if (!string.IsNullOrEmpty(keystoreName))
                 PlayerPrefs.SetString(PREFS_SETTINGS_KEYSTORE_NAME, keystoreName);
@@ -128,7 +121,7 @@ namespace LuviKunG.BuildPipeline.Android
             s.Replace("{version}", Application.version);
             s.Replace("{bundle}", PlayerSettings.Android.bundleVersionCode.ToString());
             s.Replace("{date}", DateTime.Now.ToString(dateTimeFormat));
-            s.Append(isBuildAppBundle ? ".aab" : ".apk");
+            s.Append(EditorUserBuildSettings.buildAppBundle ? ".aab" : ".apk");
             return s.ToString();
         }
     }

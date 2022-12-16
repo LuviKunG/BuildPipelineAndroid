@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Runtime.Serialization;
+using UnityEditor;
 using UnityEngine;
 
 namespace LuviKunG.BuildPipeline.Android
@@ -41,9 +42,10 @@ namespace LuviKunG.BuildPipeline.Android
                     m_scrollViewPosition = scrollView.scrollPosition;
                     using (var changeScope = new EditorGUI.ChangeCheckScope())
                     {
-                        settings.nameFormat = EditorGUILayout.TextField("File name formatting", settings.nameFormat);
+                        var nameFormat = EditorGUILayout.TextField("File name formatting", settings.nameFormat);
                         if (changeScope.changed)
                         {
+                            settings.nameFormat = nameFormat;
                             settings.Save();
                             Repaint();
                         }
@@ -53,46 +55,80 @@ namespace LuviKunG.BuildPipeline.Android
                     GUILayout.Space(16.0f);
                     using (var changeScope = new EditorGUI.ChangeCheckScope())
                     {
-                        settings.dateTimeFormat = EditorGUILayout.TextField("Date time format", settings.dateTimeFormat);
+                        var dateTimeFormat = EditorGUILayout.TextField("Date time format", settings.dateTimeFormat);
                         if (changeScope.changed)
                         {
+                            settings.dateTimeFormat = dateTimeFormat;
                             settings.Save();
                             Repaint();
                         }
                     }
                     using (var changeScope = new EditorGUI.ChangeCheckScope())
                     {
-                        settings.buildOptions = (BuildOptions)EditorGUILayout.EnumFlagsField("Build options", settings.buildOptions);
+                        var buildOptions = (BuildOptions)EditorGUILayout.EnumFlagsField("Build options", settings.buildOptions);
                         if (changeScope.changed)
                         {
+                            settings.buildOptions = buildOptions;
                             settings.Save();
+                            Repaint();
+                        }
+                    }
+                    using (var horizontalScope = new EditorGUILayout.HorizontalScope())
+                    {
+                        using (var changeScope = new EditorGUI.ChangeCheckScope())
+                        {
+                            var incrementBundle = EditorGUILayout.Toggle("Increase Bundle Version", settings.incrementBundle);
+                            if (changeScope.changed)
+                            {
+                                settings.incrementBundle = incrementBundle;
+                                settings.Save();
+                                Repaint();
+                            }
+                        }
+                        GUILayout.FlexibleSpace();
+                        if (settings.incrementBundle)
+                        {
+                            EditorGUILayout.LabelField($"Next build app bundle will be version {PlayerSettings.Android.bundleVersionCode + 1}", EditorStyles.helpBox, GUILayout.ExpandWidth(false));
+                        }
+                    }
+                    using (var changeScope = new EditorGUI.ChangeCheckScope())
+                    {
+                        bool cacheEnable = GUI.enabled;
+                        GUI.enabled = !settings.incrementBundle;
+                        var bundleVersion = EditorGUILayout.IntField("Current Bundle Version", PlayerSettings.Android.bundleVersionCode);
+                        GUI.enabled = cacheEnable;
+                        if (changeScope.changed)
+                        {
+                            if (bundleVersion < 1)
+                                bundleVersion = 1;
+                            PlayerSettings.Android.bundleVersionCode = bundleVersion;
                             Repaint();
                         }
                     }
                     using (var changeScope = new EditorGUI.ChangeCheckScope())
                     {
-                        settings.incrementBundle = EditorGUILayout.Toggle("Increase Bundle Version", settings.incrementBundle);
+                        var isBuildAppBundle = EditorGUILayout.Toggle("Build App Bundle for Google Play", EditorUserBuildSettings.buildAppBundle);
                         if (changeScope.changed)
                         {
-                            settings.Save();
+                            EditorUserBuildSettings.buildAppBundle = isBuildAppBundle;
                             Repaint();
                         }
                     }
-#if BUILD_PIPELINE_ANDROID_ENABLE_BUNDLE_VERSION_CONFIG
                     using (var changeScope = new EditorGUI.ChangeCheckScope())
                     {
-                        PlayerSettings.Android.bundleVersionCode = EditorGUILayout.IntField("Current Bundle Version", PlayerSettings.Android.bundleVersionCode);
-                    }
-#endif
-                    using (var changeScope = new EditorGUI.ChangeCheckScope())
-                    {
-                        settings.isBuildAppBundle = EditorGUILayout.Toggle("Build App Bundle for Google Play", settings.isBuildAppBundle);
-                        settings.isSplitAppBinary = EditorGUILayout.Toggle("Split Application Binary", settings.isSplitAppBinary);
+                        var isSplitAppBinary = EditorGUILayout.Toggle("Split Application Binary", PlayerSettings.Android.useAPKExpansionFiles);
                         if (changeScope.changed)
                         {
-                            EditorUserBuildSettings.buildAppBundle = settings.isBuildAppBundle;
-                            PlayerSettings.Android.useAPKExpansionFiles = settings.isSplitAppBinary;
-                            settings.Save();
+                            PlayerSettings.Android.useAPKExpansionFiles = isSplitAppBinary;
+                            Repaint();
+                        }
+                    }
+                    using (var changeScope = new EditorGUI.ChangeCheckScope())
+                    {
+                        var createSymbols = (AndroidCreateSymbols)EditorGUILayout.EnumPopup("Create Symbols", EditorUserBuildSettings.androidCreateSymbols);
+                        if (changeScope.changed)
+                        {
+                            EditorUserBuildSettings.androidCreateSymbols = createSymbols;
                             Repaint();
                         }
                     }
@@ -100,9 +136,10 @@ namespace LuviKunG.BuildPipeline.Android
                     {
                         using (var changeScope = new EditorGUI.ChangeCheckScope())
                         {
-                            settings.useKeystore = GUILayout.Toggle(settings.useKeystore, "Use Keystore", EditorStyles.miniButton);
+                            var useKeystore = GUILayout.Toggle(settings.useKeystore, "Use Keystore", EditorStyles.miniButton);
                             if (changeScope.changed)
                             {
+                                settings.useKeystore = useKeystore;
                                 settings.Save();
                                 Repaint();
                             }
@@ -125,11 +162,30 @@ namespace LuviKunG.BuildPipeline.Android
                             }
                             using (var changeScope = new EditorGUI.ChangeCheckScope())
                             {
-                                settings.keystorePass = EditorGUILayout.PasswordField("Keystore Password", settings.keystorePass);
-                                settings.keyaliasName = EditorGUILayout.TextField("Keyalias Name", settings.keyaliasName);
-                                settings.keyaliasPass = EditorGUILayout.PasswordField("Keyalias Password", settings.keyaliasPass);
+                                var keystorePass = EditorGUILayout.PasswordField("Keystore Password", settings.keystorePass);
                                 if (changeScope.changed)
                                 {
+                                    settings.keystorePass = keystorePass;
+                                    settings.Save();
+                                    Repaint();
+                                }
+                            }
+                            using (var changeScope = new EditorGUI.ChangeCheckScope())
+                            {
+                                var keyaliasName = EditorGUILayout.TextField("Keyalias Name", settings.keyaliasName);
+                                if (changeScope.changed)
+                                {
+                                    settings.keyaliasName = keyaliasName;
+                                    settings.Save();
+                                    Repaint();
+                                }
+                            }
+                            using (var changeScope = new EditorGUI.ChangeCheckScope())
+                            {
+                                var keyaliasPass = EditorGUILayout.PasswordField("Keyalias Password", settings.keyaliasPass);
+                                if (changeScope.changed)
+                                {
+                                    settings.keyaliasPass = keyaliasPass;
                                     settings.Save();
                                     Repaint();
                                 }
@@ -188,8 +244,6 @@ namespace LuviKunG.BuildPipeline.Android
             string newPath = EditorUtility.SaveFolderPanel("Choose Location of Build Game", path, null);
             if (string.IsNullOrEmpty(newPath))
                 return null;
-            settings.buildPath = newPath;
-            settings.Save();
             return newPath;
         }
     }

@@ -39,7 +39,7 @@ namespace LuviKunG.BuildPipeline.Android
                 EditorUtility.DisplayDialog("Build Pipeline Android", "Cannot build because the editor is busy.", "OK");
                 return;
             }
-            settings = AndroidBuildPipelineSettings.Instance;
+            settings ??= AndroidBuildPipelineSettings.Instance;
             string path;
             if (string.IsNullOrEmpty(settings.buildPath))
                 path = OpenBuildSavePanel(settings.buildPath);
@@ -60,11 +60,11 @@ namespace LuviKunG.BuildPipeline.Android
             if (settings.useKeystore)
             {
                 PlayerSettings.Android.keystoreName = settings.keystoreName;
-                PlayerSettings.Android.keystorePass = settings.keystorePass;
+                PlayerSettings.Android.keystorePass = settings.KeystorePassword;
                 PlayerSettings.Android.keyaliasName = settings.keyaliasName;
-                PlayerSettings.Android.keyaliasPass = settings.keyaliasPass;
+                PlayerSettings.Android.keyaliasPass = settings.KeyaliasPassword;
             }
-            string fileName = settings.GetFileName();
+            string fileName = settings.GetBuildFileName();
             string buildPath = Path.Combine(path, fileName);
             BuildReport report = UnityEditor.BuildPipeline.BuildPlayer(scenes.ToArray(), buildPath, BuildTarget.Android, settings.buildOptions);
             BuildSummary summary = report.summary;

@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System.IO;
+using System.Runtime.Serialization;
 using UnityEditor;
 using UnityEngine;
 
@@ -51,7 +52,7 @@ namespace LuviKunG.BuildPipeline.Android
                         }
                     }
                     EditorGUILayout.HelpBox(HELPBOX_NAME_FORMATTING_INFO, MessageType.Info, true);
-                    EditorGUILayout.LabelField("Formatted name", settings.GetFileName(), EditorStyles.helpBox);
+                    EditorGUILayout.LabelField("Formatted name", settings.GetBuildFileName(), EditorStyles.helpBox);
                     GUILayout.Space(16.0f);
                     using (var changeScope = new EditorGUI.ChangeCheckScope())
                     {
@@ -150,7 +151,13 @@ namespace LuviKunG.BuildPipeline.Android
                             using (var horizontalScope = new EditorGUILayout.HorizontalScope())
                             {
                                 EditorGUILayout.LabelField("Keystore Name", settings.keystoreName);
-                                if (GUILayout.Button("Change...", GUILayout.Width(80.0f)))
+                                if (GUILayout.Button("Retrive", EditorStyles.miniButton, GUILayout.ExpandWidth(false)))
+                                {
+                                    settings.keystoreName = PlayerSettings.Android.keystoreName;
+                                    settings.Save();
+                                    Repaint();
+                                }
+                                if (GUILayout.Button("Change", EditorStyles.miniButton, GUILayout.ExpandWidth(false)))
                                 {
                                     var path = EditorUtility.OpenFilePanelWithFilters("Choose Location of Build Game", string.IsNullOrEmpty(settings.keystoreName) ? string.Empty : settings.keystoreName, KEYSTORE_EXTENSIONS);
                                     if (string.IsNullOrEmpty(path))
@@ -162,10 +169,10 @@ namespace LuviKunG.BuildPipeline.Android
                             }
                             using (var changeScope = new EditorGUI.ChangeCheckScope())
                             {
-                                var keystorePass = EditorGUILayout.PasswordField("Keystore Password", settings.keystorePass);
+                                var keystorePass = EditorGUILayout.PasswordField("Keystore Password", settings.KeystorePassword);
                                 if (changeScope.changed)
                                 {
-                                    settings.keystorePass = keystorePass;
+                                    settings.KeystorePassword = keystorePass;
                                     settings.Save();
                                     Repaint();
                                 }
@@ -182,10 +189,10 @@ namespace LuviKunG.BuildPipeline.Android
                             }
                             using (var changeScope = new EditorGUI.ChangeCheckScope())
                             {
-                                var keyaliasPass = EditorGUILayout.PasswordField("Keyalias Password", settings.keyaliasPass);
+                                var keyaliasPass = EditorGUILayout.PasswordField("Keyalias Password", settings.KeyaliasPassword);
                                 if (changeScope.changed)
                                 {
-                                    settings.keyaliasPass = keyaliasPass;
+                                    settings.KeyaliasPassword = keyaliasPass;
                                     settings.Save();
                                     Repaint();
                                 }
@@ -196,12 +203,12 @@ namespace LuviKunG.BuildPipeline.Android
                                 GUILayout.FlexibleSpace();
                                 Color cacheColor = GUI.color;
                                 GUI.color = Color.red;
-                                if (GUILayout.Button("Clear Keystore Information", GUILayout.MaxWidth(256.0f)))
+                                if (GUILayout.Button("Clear Keystore Information", GUILayout.MaxWidth(250.0f), GUILayout.Height(30.0f)))
                                 {
                                     settings.keystoreName = string.Empty;
-                                    settings.keystorePass = string.Empty;
+                                    settings.KeystorePassword = string.Empty;
                                     settings.keyaliasName = string.Empty;
-                                    settings.keyaliasPass = string.Empty;
+                                    settings.KeyaliasPassword = string.Empty;
                                     settings.Save();
                                     Repaint();
                                 }
@@ -214,7 +221,7 @@ namespace LuviKunG.BuildPipeline.Android
                     using (var horizontalScope = new EditorGUILayout.HorizontalScope())
                     {
                         EditorGUILayout.LabelField("Build location", settings.buildPath);
-                        if (GUILayout.Button("Change...", GUILayout.Width(80.0f)))
+                        if (GUILayout.Button("Change", EditorStyles.miniButton, GUILayout.ExpandWidth(false)))
                         {
                             var path = OpenBuildSavePanel(settings.buildPath);
                             if (!string.IsNullOrEmpty(path))
@@ -228,7 +235,7 @@ namespace LuviKunG.BuildPipeline.Android
                         GUILayout.FlexibleSpace();
                         bool cacheEnable = GUI.enabled;
                         GUI.enabled = !string.IsNullOrWhiteSpace(settings.buildPath);
-                        if (GUILayout.Button("Open Build Location", GUILayout.MaxWidth(256.0f)))
+                        if (GUILayout.Button("Open Build Location", GUILayout.MaxWidth(250.0f), GUILayout.Height(30.0f)))
                         {
                             Application.OpenURL(settings.buildPath);
                         }

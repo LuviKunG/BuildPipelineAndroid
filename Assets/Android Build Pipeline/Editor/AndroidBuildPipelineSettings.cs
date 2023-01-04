@@ -5,32 +5,49 @@ using UnityEngine;
 
 namespace LuviKunG.BuildPipeline.Android
 {
-    public sealed class AndroidBuildPipelineSettings
+    public sealed class AndroidBuildPipelineSettings : ScriptableObject
     {
+        // 'Editor/Resources/' are special folders that all assets will be exclude from build.
+        // https://docs.unity3d.com/Manual/SpecialFolders.html
+        private const string EDITOR_DEFAULT_RESOURCE_PATH = "Assets/Editor/Resources/AndroidBuildPipelineSettings.asset";
+
         private static AndroidBuildPipelineSettings instance;
         public static AndroidBuildPipelineSettings Instance
         {
             get
             {
                 if (instance == null)
-                    instance = new AndroidBuildPipelineSettings();
+                {
+                    instance = GetEditorDefaultResourceInstance();
+                }
                 return instance;
             }
         }
 
-        private const string ALIAS = "unity.editor.luvikung.buildpipeline.android.";
-        private const string PREFS_SETTINGS_BUILD_PATH = ALIAS + "buildpath";
-        private const string PREFS_SETTINGS_NAME_FORMAT = ALIAS + "nameformat";
-        private const string PREFS_SETTINGS_DATE_TIME_FORMAT = ALIAS + "datetimeformat";
-        private const string PREFS_SETTINGS_INCREMENT_BUNDLE = ALIAS + "incrementbundle";
-        private const string PREFS_SETTINGS_BUILD_OPTIONS = ALIAS + "buildOptions";
-        private const string PREFS_SETTINGS_USE_KEYSTORE = ALIAS + "usekeystore";
-        private const string PREFS_SETTINGS_IS_BUILD_APP_BUNDLE = ALIAS + "isBuildAppBundle";
-        private const string PREFS_SETTINGS_IS_SPLIT_APP_BINARY = ALIAS + "isSplitAppBinary";
-        private const string PREFS_SETTINGS_KEYSTORE_NAME = ALIAS + "keystorename";
-        private const string PREFS_SETTINGS_KEYSTORE_PASS = ALIAS + "keystorepass";
-        private const string PREFS_SETTINGS_KEYALIAS_NAME = ALIAS + "keyaliasname";
-        private const string PREFS_SETTINGS_KEYALIAS_PASS = ALIAS + "keyaliaspass";
+        private static AndroidBuildPipelineSettings GetEditorDefaultResourceInstance()
+        {
+            void CreateFolderIfNotExist(string path)
+            {
+                var folderPath = path.Substring(0, path.LastIndexOf('/'));
+                if (!AssetDatabase.IsValidFolder(folderPath))
+                {
+                    CreateFolderIfNotExist(folderPath);
+                    AssetDatabase.CreateFolder(folderPath.Substring(0, folderPath.LastIndexOf('/')), folderPath.Substring(folderPath.LastIndexOf('/') + 1));
+                }
+            }
+            var asset = AssetDatabase.LoadAssetAtPath<AndroidBuildPipelineSettings>(EDITOR_DEFAULT_RESOURCE_PATH);
+            if (asset == null)
+            {
+                asset = CreateInstance<AndroidBuildPipelineSettings>();
+                // recursive function that wil check folders from path that isn't exist and will create folder.
+                CreateFolderIfNotExist(EDITOR_DEFAULT_RESOURCE_PATH);
+                AssetDatabase.CreateAsset(asset, EDITOR_DEFAULT_RESOURCE_PATH);
+                AssetDatabase.SaveAssets();
+            }
+            return asset;
+        }
+
+        private static StringBuilder cachedStringBuilder;
 
         public string buildPath;
         public string nameFormat;
@@ -40,89 +57,72 @@ namespace LuviKunG.BuildPipeline.Android
         public bool useKeystore;
 
         public string keystoreName;
-        public string keystorePass;
         public string keyaliasName;
-        public string keyaliasPass;
+
+        [SerializeField]
+        private string keystoreEncodedPassword;
+        public string KeystorePassword
+        {
+            get => DecodePassword(keystoreEncodedPassword);
+            set => keystoreEncodedPassword = EncodePassword(value);
+        }
+
+        [SerializeField]
+        public string keyaliasEncodedPassword;
+        public string KeyaliasPassword
+        {
+            get => DecodePassword(keyaliasEncodedPassword);
+            set => keyaliasEncodedPassword = EncodePassword(value);
+        }
 
         public AndroidBuildPipelineSettings()
         {
-            Load();
+            buildPath = string.Empty;
+            nameFormat = "{package}_{date}";
+            dateTimeFormat = "yyyyMMddHHmm";
+            incrementBundle = true;
+            buildOptions = BuildOptions.CompressWithLz4;
+            useKeystore = false;
+            keystoreName = string.Empty;
+            keyaliasName = string.Empty;
+            keystoreEncodedPassword = string.Empty;
+            keyaliasEncodedPassword = string.Empty;
         }
 
-        public void Load()
+        public string GetBuildFileName()
         {
-            // Define 'BUILD_PIPELINE_ANDROID_UNITY_DEFAULT' if you want to set a build location as same as default of Unity Editor
-            // But it's buggy because it will include default file name too.
-#if BUILD_PIPELINE_ANDROID_UNITY_DEFAULT
-            buildPath = PlayerPrefs.GetString(PREFS_SETTINGS_BUILD_PATH, EditorUserBuildSettings.GetBuildLocation(BuildTarget.Android));
-#else
-            buildPath = PlayerPrefs.GetString(PREFS_SETTINGS_BUILD_PATH, string.Empty);
-#endif
-            nameFormat = PlayerPrefs.GetString(PREFS_SETTINGS_NAME_FORMAT, "{package}_{date}");
-            dateTimeFormat = PlayerPrefs.GetString(PREFS_SETTINGS_DATE_TIME_FORMAT, "yyyyMMddHHmmss");
-            incrementBundle = PlayerPrefs.GetString(PREFS_SETTINGS_INCREMENT_BUNDLE, bool.FalseString) == bool.TrueString;
-            buildOptions = (BuildOptions)PlayerPrefs.GetInt(PREFS_SETTINGS_BUILD_OPTIONS, 0);
-            
-            useKeystore = PlayerPrefs.GetInt(PREFS_SETTINGS_USE_KEYSTORE, 0) != 0;
-
-            keystoreName = PlayerPrefs.GetString(PREFS_SETTINGS_KEYSTORE_NAME, PlayerSettings.Android.keystoreName);
-            keyaliasName = PlayerPrefs.GetString(PREFS_SETTINGS_KEYALIAS_NAME, string.Empty);
-            
-            var keystorePassEncoded = PlayerPrefs.GetString(PREFS_SETTINGS_KEYSTORE_PASS, string.Empty);
-            if (!string.IsNullOrEmpty(keystorePassEncoded))
-                keystorePass = Encoding.ASCII.GetString(Convert.FromBase64String(keystorePassEncoded));
-
-            var keyaliasPassEncoded = PlayerPrefs.GetString(PREFS_SETTINGS_KEYALIAS_PASS, string.Empty);
-            if (!string.IsNullOrEmpty(keyaliasPassEncoded))
-                keyaliasPass = Encoding.ASCII.GetString(Convert.FromBase64String(keyaliasPassEncoded));
+            cachedStringBuilder ??= new StringBuilder();
+            cachedStringBuilder.Clear();
+            cachedStringBuilder.Append(nameFormat);
+            cachedStringBuilder.Replace("{name}", Application.productName);
+            cachedStringBuilder.Replace("{package}", PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.Android));
+            cachedStringBuilder.Replace("{version}", Application.version);
+            cachedStringBuilder.Replace("{bundle}", PlayerSettings.Android.bundleVersionCode.ToString());
+            cachedStringBuilder.Replace("{date}", DateTime.Now.ToString(dateTimeFormat));
+            cachedStringBuilder.Append(EditorUserBuildSettings.buildAppBundle ? ".aab" : ".apk");
+            return cachedStringBuilder.ToString();
         }
 
         public void Save()
         {
-            PlayerPrefs.SetString(PREFS_SETTINGS_BUILD_PATH, buildPath);
-            PlayerPrefs.SetString(PREFS_SETTINGS_NAME_FORMAT, nameFormat);
-            PlayerPrefs.SetString(PREFS_SETTINGS_DATE_TIME_FORMAT, dateTimeFormat);
-            PlayerPrefs.SetString(PREFS_SETTINGS_INCREMENT_BUNDLE, incrementBundle ? bool.TrueString : bool.FalseString);
-            PlayerPrefs.SetInt(PREFS_SETTINGS_BUILD_OPTIONS, (int)buildOptions);
-            PlayerPrefs.SetInt(PREFS_SETTINGS_USE_KEYSTORE, useKeystore ? 1 : 0);
-
-            if (!string.IsNullOrEmpty(keystoreName))
-                PlayerPrefs.SetString(PREFS_SETTINGS_KEYSTORE_NAME, keystoreName);
-            else if (PlayerPrefs.HasKey(PREFS_SETTINGS_KEYSTORE_NAME))
-                PlayerPrefs.DeleteKey(PREFS_SETTINGS_KEYSTORE_NAME);
-
-            if (!string.IsNullOrEmpty(keyaliasName))
-                PlayerPrefs.SetString(PREFS_SETTINGS_KEYALIAS_NAME, keyaliasName);
-            else if (PlayerPrefs.HasKey(PREFS_SETTINGS_KEYALIAS_NAME))
-                PlayerPrefs.DeleteKey(PREFS_SETTINGS_KEYALIAS_NAME);
-
-            if (!string.IsNullOrEmpty(keystorePass))
-            {
-                var keystorePassEncoded = Convert.ToBase64String(Encoding.ASCII.GetBytes(keystorePass));
-                PlayerPrefs.SetString(PREFS_SETTINGS_KEYSTORE_PASS, keystorePassEncoded);
-            }
-            else if (PlayerPrefs.HasKey(PREFS_SETTINGS_KEYSTORE_PASS))
-                PlayerPrefs.DeleteKey(PREFS_SETTINGS_KEYSTORE_PASS);
-
-            if (!string.IsNullOrEmpty(keyaliasPass))
-            {
-                var keyaliasPassEncoded = Convert.ToBase64String(Encoding.ASCII.GetBytes(keyaliasPass));
-                PlayerPrefs.SetString(PREFS_SETTINGS_KEYALIAS_PASS, keyaliasPassEncoded);
-            }
-            else if (PlayerPrefs.HasKey(PREFS_SETTINGS_KEYALIAS_PASS))
-                PlayerPrefs.DeleteKey(PREFS_SETTINGS_KEYALIAS_PASS);
+            EditorUtility.SetDirty(this);
+            AssetDatabase.SaveAssets();
         }
 
-        public string GetFileName()
+        private string DecodePassword(string encodedPassword)
         {
-            StringBuilder s = new StringBuilder(nameFormat);
-            s.Replace("{name}", Application.productName);
-            s.Replace("{package}", PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.Android));
-            s.Replace("{version}", Application.version);
-            s.Replace("{bundle}", PlayerSettings.Android.bundleVersionCode.ToString());
-            s.Replace("{date}", DateTime.Now.ToString(dateTimeFormat));
-            s.Append(EditorUserBuildSettings.buildAppBundle ? ".aab" : ".apk");
-            return s.ToString();
+            if (string.IsNullOrEmpty(encodedPassword))
+                return string.Empty;
+            var bytes = Convert.FromBase64String(encodedPassword);
+            return Encoding.UTF8.GetString(bytes);
+        }
+
+        private string EncodePassword(string password)
+        {
+            if (string.IsNullOrEmpty(password))
+                return string.Empty;
+            var bytes = Encoding.UTF8.GetBytes(password);
+            return Convert.ToBase64String(bytes);
         }
     }
 }

@@ -1,6 +1,19 @@
 # Change Log
 
-## v1.0.6 December 12th 2022 - Latest
+## v1.0.7 January 4th 2023 - Latest
+
+`https://github.com/LuviKunG/BuildPipelineAndroid.git#1.0.7`
+
+- Refractor the code in **Android Build Pipeline Settings**
+    - Remove all usage of **PlayerPrefs** that holding values of build pipeline.
+    - Using as serialized **Scriptable Object Asset** in **Editor/Resources** instead.
+    - Still able to call for instance and save the value as serialized asset.
+- Improve the **Android Build Pipeline Window** a little bit.
+    - Change size of button as unexpanded buttons.
+    - Increase size of execution buttons.
+    - Add new button of **Retrive** in keystore name for retrive the keystore path from **PlayerSettings.Android.keystoreName**.
+
+## v1.0.6 December 12th 2022
 
 `https://github.com/LuviKunG/BuildPipelineAndroid.git#1.0.6`
 

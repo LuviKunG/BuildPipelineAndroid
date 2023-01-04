@@ -2,7 +2,7 @@
   "name": "com.luvikung.buildpipelineandroid",
   "displayName": "Build Pipeline for Android",
   "description": "Build Pipeline for Android is an automation build tools for Unity Editor for easier to build android.",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "unity": "2021.3",
   "author": "Thanut Panichyotai",
   "contributors": [

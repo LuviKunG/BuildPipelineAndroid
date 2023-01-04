@@ -1,5 +1,15 @@
 # Change Log
 
+## 1.0.7
+- Refractor the code in **Android Build Pipeline Settings**
+    - Remove all usage of **PlayerPrefs** that holding values of build pipeline.
+    - Using as serialized **Scriptable Object Asset** in **Editor/Resources** instead.
+    - Still able to call for instance and save the value as serialized asset.
+- Improve the **Android Build Pipeline Window** a little bit.
+    - Change size of button as unexpanded buttons.
+    - Increase size of execution buttons.
+    - Add new button of **Retrive** in keystore name for retrive the keystore path from **PlayerSettings.Android.keystoreName**.
+
 ## 1.0.6
 - Add new popup field of **'Create Symbols'** that will create `symbols.zip` on build, using for upload to Google Play Console.
 - Remove usage of `BUILD_PIPELINE_ANDROID_ENABLE_BUNDLE_VERSION_CONFIG` and always enable app bundle version field.

@@ -25,7 +25,7 @@ Then merge this json format below.
 ```json
 {
   "dependencies": {
-    "com.luvikung.buildpipelineandroid": "https://github.com/LuviKunG/AndroidBuildPipeline.git#1.0.6"
+    "com.luvikung.buildpipelineandroid": "https://github.com/LuviKunG/AndroidBuildPipeline.git#1.0.7"
   }
 }
 ```

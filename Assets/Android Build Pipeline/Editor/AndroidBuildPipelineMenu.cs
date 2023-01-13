@@ -52,11 +52,7 @@ namespace LuviKunG.BuildPipeline.Android
             if (!(scenes.Count > 0))
                 return;
             if (settings.incrementBundle)
-            {
-                int bundleVersion = PlayerSettings.Android.bundleVersionCode;
-                bundleVersion++;
-                PlayerSettings.Android.bundleVersionCode = bundleVersion;
-            }
+                PlayerSettings.Android.bundleVersionCode++;
             if (settings.useKeystore)
             {
                 PlayerSettings.Android.keystoreName = settings.keystoreName;
@@ -75,7 +71,10 @@ namespace LuviKunG.BuildPipeline.Android
             }
             if (summary.result == BuildResult.Failed)
             {
-                Debug.LogError($"Build failed...");
+                // Reverse bundle version when failed.
+                if (settings.incrementBundle)
+                    PlayerSettings.Android.bundleVersionCode--;
+                Debug.LogError($"Build failed with {summary.totalErrors} errors and {summary.totalWarnings} warnings");
             }
         }
     }
